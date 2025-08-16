@@ -12,7 +12,7 @@ with st.form("daily_form"):
 
 if submitted:
     res = requests.post(
-        "http://localhost:5000/process",
+        "https://consious-day-agent-be-fbnm.vercel.app/api/generate",
         json={
             "journal": journal,
             "dream": dream,
@@ -20,13 +20,22 @@ if submitted:
             "priorities": priorities
         }
     )
+    # st.write("Raw response:", res.text)
     if res.status_code == 200:
         data = res.json()
-        st.subheader("Inner Reflection Summary")
-        st.write(data["reflection"])
-        st.subheader("Dream Interpretation")
-        st.write(data["dreamInterpretation"])
-        st.subheader("Mindset Insight")
-        st.write(data["mindsetInsight"])
-        st.subheader("Optimized Day Strategy")
-        st.write(data["strategy"])
+        result = data["result"]
+
+        parts = result.split("\n")
+        for line in parts:
+            if line.startswith("1."):
+                st.subheader("Inner Reflection Summary")
+                st.write(line.replace("1. Inner Reflection Summary:", "").strip())
+            elif line.startswith("2."):
+                st.subheader("Dream Interpretation Summary")
+                st.write(line.replace("2. Dream Interpretation Summary:", "").strip())
+            elif line.startswith("3."):
+                st.subheader("Energy/Mindset Insight")
+                st.write(line.replace("3. Energy/Mindset Insight:", "").strip())
+            elif line.startswith("4."):
+                st.subheader("Suggested Day Strategy")
+                st.write(line.replace("4. Suggested Day Strategy (time-aligned tasks):", "").strip())
